@@ -85,3 +85,11 @@ python -m flake8 yt_fetch.py yt_fetch_gui.py chrome_cdp_cookies.py build_exe.py 
   延後自動失效、報告恢復提醒——所以不會變成永久靜音。沒有 `deferredLatest` 的條目直接忽略。
 
 **不要用調高下限的方式讓紅燈消失**：宣告是相容性承諾，不是消音鍵。
+
+## 回覆風格與高風險區補充
+
+- 使用繁體中文，先說明改了什麼、驗證了什麼。
+- 涉及 CLI 參數、URL 正規化、候選影片篩選、cookies 或授權存取判斷時，必須補或更新對應測試。
+- 修改以下區域前先讀對應文件：cookies／受控登入見 `SECURITY.md` 與 `chrome_cdp_cookies.py`；
+  Windows GUI／Release 見 `docs/COMPUTER_USE_VALIDATION.md`；打包與發行見 `docs/RELEASING.md`；
+  架構與核心資料流見 `docs/ARCHITECTURE.md`。
