@@ -1,13 +1,13 @@
 ---
 name: channeldepot
-description: 維護 ChannelDepot（SanHsien/yt_fetch）：以 yt-dlp 為核心的輕量 YouTube 頻道影片保存工具，提供 CLI、Tkinter GUI、批次頻道、篩選與使用者自己的授權登入 cookies。
+description: 維護 ChannelDepot（SanHsien/channeldepot）：以 yt-dlp 為核心的輕量 YouTube 頻道影片保存工具，提供 CLI、Tkinter GUI、批次頻道、篩選與使用者自己的授權登入 cookies。
 ---
 
 # ChannelDepot quick index
 
 ## 何時使用
 
-使用者要維護 **ChannelDepot**（目前 repository slug：`SanHsien/yt_fetch`），或調整：
+使用者要維護 **ChannelDepot**（目前 repository slug：`SanHsien/channeldepot`），或調整：
 
 - 頻道 URL / `@handle` 正規化
 - 最新 N 支影片、Shorts、畫質、日期、標題、長度、字幕篩選

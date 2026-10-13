@@ -2,9 +2,9 @@
 
 [繁體中文](README.md)
 
-[![Release](https://img.shields.io/github/v/release/SanHsien/yt_fetch?sort=semver&display_name=tag)](https://github.com/SanHsien/yt_fetch/releases/latest)
-[![CI](https://github.com/SanHsien/yt_fetch/actions/workflows/code-check.yml/badge.svg?branch=main)](https://github.com/SanHsien/yt_fetch/actions/workflows/code-check.yml)
-[![CodeQL](https://github.com/SanHsien/yt_fetch/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/SanHsien/yt_fetch/actions/workflows/codeql.yml)
+[![Release](https://img.shields.io/github/v/release/SanHsien/channeldepot?sort=semver&display_name=tag)](https://github.com/SanHsien/channeldepot/releases/latest)
+[![CI](https://github.com/SanHsien/channeldepot/actions/workflows/code-check.yml/badge.svg?branch=main)](https://github.com/SanHsien/channeldepot/actions/workflows/code-check.yml)
+[![CodeQL](https://github.com/SanHsien/channeldepot/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/SanHsien/channeldepot/actions/workflows/codeql.yml)
 [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/)
 [![Platform](https://img.shields.io/badge/Source-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](#platform-support)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -25,7 +25,7 @@ The GUI downloads in the background and shows progress, logs, and results. It ca
 
 ## Download the portable Windows build
 
-1. Open the [Latest Release](https://github.com/SanHsien/yt_fetch/releases/latest).
+1. Open the [Latest Release](https://github.com/SanHsien/channeldepot/releases/latest).
 2. Download `yt_fetch-vX.Y.Z-windows-x64.zip`.
 3. Extract it and run `yt_fetch.exe`.
 4. Downloads go to the adjacent `download/` folder by default; each Release also includes a `.sha256` checksum.
@@ -118,8 +118,8 @@ See [SECURITY.md](SECURITY.md) for more detail.
 Python 3.10+ is required:
 
 ```bash
-git clone https://github.com/SanHsien/yt_fetch.git
-cd yt_fetch
+git clone https://github.com/SanHsien/channeldepot.git
+cd channeldepot
 python -m venv .venv
 ```
 

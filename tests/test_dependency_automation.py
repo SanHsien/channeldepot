@@ -1,5 +1,6 @@
 """版本庫依賴更新排程的整合測試。"""
 
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -70,3 +71,19 @@ def test_freshness_workflow_owns_and_resolves_one_maintenance_issue():
     assert "--add-label dependencies" in workflow
     assert 'gh issue edit "$issue" --body-file' in workflow
     assert 'gh issue close "$issue"' in workflow
+
+
+def test_dependabot_review_targets_only_current_owner_repository():
+    workflow = (ROOT / ".github" / "workflows" / "dependabot-review.yml").read_text(
+        encoding="utf-8"
+    )
+    for job in ("sync-freshness", "classify"):
+        guard = re.search(rf"^  {job}:\n    if: >-\n(.*?)    runs-on:", workflow, re.M | re.S)
+        assert guard is not None, job
+        repositories = re.findall(r"github\.repository == '([^']+)'", guard.group(1))
+        assert repositories == ["SanHsien/channeldepot"], job
+        assert "github.event.pull_request.user.login == 'dependabot[bot]'" in guard.group(1)
+        assert "||" not in guard.group(1), job
+        if job == "classify":
+            assert "github.event.action != 'closed'" in guard.group(1)
+            assert "github.event.pull_request.draft == false" in guard.group(1)

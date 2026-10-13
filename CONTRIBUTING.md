@@ -8,13 +8,13 @@
 
 如果您發現了 bug 或有改進建議，請：
 
-1. 先檢查 [Issues](https://github.com/SanHsien/yt_fetch/issues) 確認問題尚未被回報
-2. 使用 [Bug 回報模板](https://github.com/SanHsien/yt_fetch/issues/new?template=bug_report.md) 建立新的 Issue
+1. 先檢查 [Issues](https://github.com/SanHsien/channeldepot/issues) 確認問題尚未被回報
+2. 使用 [Bug 回報模板](https://github.com/SanHsien/channeldepot/issues/new?template=bug_report.md) 建立新的 Issue
 3. 提供詳細的錯誤訊息、重現步驟和環境資訊
 
 ### 提出功能建議
 
-1. 使用 [功能建議模板](https://github.com/SanHsien/yt_fetch/issues/new?template=feature_request.md) 建立新的 Issue
+1. 使用 [功能建議模板](https://github.com/SanHsien/channeldepot/issues/new?template=feature_request.md) 建立新的 Issue
 2. 清楚描述功能的使用情境和預期行為
 
 ### 提交程式碼
@@ -47,7 +47,7 @@
 
 5. **建立 Pull Request**
    - 在 GitHub 上建立 Pull Request
-   - 使用 [PR 模板](https://github.com/SanHsien/yt_fetch/compare) 填寫詳細說明
+   - 使用 [PR 模板](https://github.com/SanHsien/channeldepot/compare) 填寫詳細說明
    - 確保所有檢查都通過（本地與 CI）
 
 ## 程式碼規範
@@ -127,7 +127,7 @@ vermin -t=3.10- --violations --eval-annotations --no-tips yt_fetch.py yt_fetch_g
 
 如果您有任何問題，請：
 
-- 在 [Issues](https://github.com/SanHsien/yt_fetch/issues) 中提問
+- 在 [Issues](https://github.com/SanHsien/channeldepot/issues) 中提問
 - 查看現有的文件和範例
 
 再次感謝您的貢獻！🎉

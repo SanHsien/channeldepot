@@ -53,7 +53,7 @@ $ValidationNonce = [Guid]::NewGuid().ToString("N")
 $VerifyRoot = Join-Path $env:TEMP "yt-fetch-release-verify-vX.Y.Z-$ValidationNonce"
 New-Item -ItemType Directory -Path $VerifyRoot | Out-Null
 
-gh release download vX.Y.Z -R SanHsien/yt_fetch `
+gh release download vX.Y.Z -R SanHsien/channeldepot `
   -p "yt_fetch-vX.Y.Z-windows-x64.zip" `
   -p "yt_fetch-vX.Y.Z-windows-x64.zip.sha256" `
   -D $VerifyRoot

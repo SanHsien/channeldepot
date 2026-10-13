@@ -15,7 +15,7 @@ jobs:
   sync-freshness:
     if: >-
       github.event.pull_request.user.login == 'dependabot[bot]' &&
-      github.repository == 'SanHsien/yt_fetch'
+      github.repository == 'SanHsien/channeldepot'
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
@@ -27,7 +27,7 @@ jobs:
   classify:
     if: >-
       github.event.pull_request.user.login == 'dependabot[bot]' &&
-      github.repository == 'SanHsien/yt_fetch' &&
+      github.repository == 'SanHsien/channeldepot' &&
       github.event.action != 'closed' &&
       github.event.pull_request.draft == false
     runs-on: ubuntu-latest

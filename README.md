@@ -2,9 +2,9 @@
 
 [English](README.en.md)
 
-[![Release](https://img.shields.io/github/v/release/SanHsien/yt_fetch?sort=semver&display_name=tag)](https://github.com/SanHsien/yt_fetch/releases/latest)
-[![CI](https://github.com/SanHsien/yt_fetch/actions/workflows/code-check.yml/badge.svg?branch=main)](https://github.com/SanHsien/yt_fetch/actions/workflows/code-check.yml)
-[![CodeQL](https://github.com/SanHsien/yt_fetch/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/SanHsien/yt_fetch/actions/workflows/codeql.yml)
+[![Release](https://img.shields.io/github/v/release/SanHsien/channeldepot?sort=semver&display_name=tag)](https://github.com/SanHsien/channeldepot/releases/latest)
+[![CI](https://github.com/SanHsien/channeldepot/actions/workflows/code-check.yml/badge.svg?branch=main)](https://github.com/SanHsien/channeldepot/actions/workflows/code-check.yml)
+[![CodeQL](https://github.com/SanHsien/channeldepot/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/SanHsien/channeldepot/actions/workflows/codeql.yml)
 [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/)
 [![Platform](https://img.shields.io/badge/Source-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](#platform-support)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -25,7 +25,7 @@ GUI 會在背景下載並顯示進度、日誌與結果；可匯入多個頻道�
 
 ## 下載 Windows 免安裝版
 
-1. 到 [Latest Release](https://github.com/SanHsien/yt_fetch/releases/latest)。
+1. 到 [Latest Release](https://github.com/SanHsien/channeldepot/releases/latest)。
 2. 下載 `yt_fetch-vX.Y.Z-windows-x64.zip`。
 3. 解壓後執行 `yt_fetch.exe`。
 4. 預設下載位置為程式旁的 `download/`；Release 同時提供 `.sha256` 校驗檔。
@@ -118,8 +118,8 @@ Windows GUI 另提供受控 Chrome 登入流程，可在本機取得目前使用
 需要 Python 3.10+：
 
 ```bash
-git clone https://github.com/SanHsien/yt_fetch.git
-cd yt_fetch
+git clone https://github.com/SanHsien/channeldepot.git
+cd channeldepot
 python -m venv .venv
 ```
 

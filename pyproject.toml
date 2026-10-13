@@ -51,9 +51,9 @@ yt-fetch = "yt_fetch:main"
 yt-fetch-gui = "yt_fetch_gui:main"
 
 [project.urls]
-Homepage = "https://github.com/SanHsien/yt_fetch"
-Repository = "https://github.com/SanHsien/yt_fetch"
-Issues = "https://github.com/SanHsien/yt_fetch/issues"
+Homepage = "https://github.com/SanHsien/channeldepot"
+Repository = "https://github.com/SanHsien/channeldepot"
+Issues = "https://github.com/SanHsien/channeldepot/issues"
 
 [tool.black]
 line-length = 100

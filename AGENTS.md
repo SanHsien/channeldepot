@@ -1,6 +1,6 @@
 # AGENTS.md
 
-本檔是 **ChannelDepot**（目前 repository slug：`SanHsien/yt_fetch`）的 AI coding agent 主要維護規則。Claude Code 的工具專屬補充見 [`CLAUDE.md`](CLAUDE.md)；衝突時以本檔為準。
+本檔是 **ChannelDepot**（目前 repository slug：`SanHsien/channeldepot`）的 AI coding agent 主要維護規則。Claude Code 的工具專屬補充見 [`CLAUDE.md`](CLAUDE.md)；衝突時以本檔為準。
 
 ## 專案定位
 
