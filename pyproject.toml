@@ -32,7 +32,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "black>=26.10.0",
+    "black>=26.10.1",
     "flake8>=7.4.1",
     "isort>=9.0.1",
     "pre-commit>=4.6.2",
