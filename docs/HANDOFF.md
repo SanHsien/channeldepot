@@ -18,7 +18,7 @@
 - 文件：`README.md` / `README.en.md`、`docs/ARCHITECTURE.md`、`docs/DEVELOPMENT.md`、
   `docs/RELEASING.md`、`docs/COMPUTER_USE_VALIDATION.md`、`docs/screenshot-workflow.md`、
   `docs/planning/`
-- Agent 指引：`AGENTS.md`、`CLAUDE.md`
+- Agent 指引：`AGENTS.md`
 
 ## 近期完成（roadmap）
 
