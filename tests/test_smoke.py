@@ -1724,3 +1724,19 @@ def test_is_newer_version_ignores_trailing_zero_segments():
     assert not is_newer_version("1.0.0", "1.0")
     assert not is_newer_version("1.0", "1.0.0")
     assert is_newer_version("1.0.1", "1.0")
+
+
+def test_build_channel_urls_only_treats_real_tab_as_specific_page():
+    """自訂網址的名稱剛好含 videos／shorts 字樣時，仍要補上分頁。"""
+    from yt_fetch import build_channel_urls
+
+    assert build_channel_urls("https://www.youtube.com/c/shortsbreak", False) == [
+        "https://www.youtube.com/c/shortsbreak/videos"
+    ]
+    assert build_channel_urls("https://www.youtube.com/c/videos-daily", True) == [
+        "https://www.youtube.com/c/videos-daily/videos",
+        "https://www.youtube.com/c/videos-daily/shorts",
+    ]
+    assert build_channel_urls("https://www.youtube.com/@x/shorts", True) == [
+        "https://www.youtube.com/@x/shorts"
+    ]

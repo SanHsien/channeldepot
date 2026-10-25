@@ -862,7 +862,8 @@ def build_channel_urls(channel_url: str, include_shorts: bool) -> List[str]:
     YouTube 自 2022 起把頻道分為 Videos / Shorts / Live 分頁；`/videos` 只含長片、
     `/shorts` 只含 Shorts。若輸入已是 playlist 或已指定特定分頁，則原樣使用。
     """
-    if "/playlist" in channel_url or "/videos" in channel_url or "/shorts" in channel_url:
+    path_segments = [seg.lower() for seg in urlparse(channel_url).path.split("/") if seg]
+    if "playlist" in path_segments or "videos" in path_segments or "shorts" in path_segments:
         return [channel_url]
 
     base_url = channel_url.rstrip("/")
