@@ -1,6 +1,6 @@
 # 接手狀態
 
-更新日期：2026-07-26
+更新日期：2026-10-25
 
 ## 專案概況
 
@@ -27,7 +27,7 @@
 - ✅ 設定檔 `yt_fetch.ini`（configparser）：優先序 CLI > 環境變數 > ini > 內建；**不保存 cookies**。
 - ✅ 多頻道批次下載 `--channels-file`（單一失敗不中斷整批）＋結果報表。
 - ✅ 可測化：抽出 `build_channel_urls`、`filter_downloadable_entries`、`find_downloaded_file`、
-  `filter_reason`、`is_non_public` 等純函式；目前測試數為 149。
+  `filter_reason`、`is_non_public` 等純函式；目前測試數為 159。
 - ✅ UX：`--help` 乾淨輸出、env 數字防呆、Ctrl+C 乾淨退出、cookies 安全提醒。
 - ✅ 跨平台 CI（Ubuntu/Windows/macOS）＋ console script、`--help` smoke 與 Python CodeQL。
 - ✅ 正確性修正：`--count` 以頻道計、Shorts 不誤殺正常短片、下載偵測 glob bug。
@@ -58,7 +58,7 @@
   wheel build 與 CodeQL 通過後自動核准，並以全域序列在必要時 rebase，再 squash merge、
   關閉 PR 與刪分支；執行期、未覆蓋的發布工具、Actions major 與異常範圍保留人工 Gate。
 
-當前版本：`1.9.2`（pyproject、__version__ 與 CHANGELOG 同步；`v1.9.2` GitHub Release
+當前版本：`1.9.2`；未發布的宣告基線已升至 `yt-dlp>=2026.10.21`，尚未重發 EXE（pyproject、__version__ 與 CHANGELOG 同步；`v1.9.2` GitHub Release
 已發布，正式 Windows ZIP 的 checksum、CRC、壓縮結構與解壓均已驗證）。
 
 ## 已知注意事項
