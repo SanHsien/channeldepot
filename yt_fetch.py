@@ -348,7 +348,9 @@ def parse_version(text: str) -> tuple:
 
 def is_newer_version(latest: str, current: str) -> bool:
     """latest 是否比 current 新（語義化版本比較）。"""
-    return parse_version(latest) > parse_version(current)
+    a, b = parse_version(latest), parse_version(current)
+    width = max(len(a), len(b))  # 補 0 對齊，讓 1.0 與 1.0.0 視為相同版本
+    return a + (0,) * (width - len(a)) > b + (0,) * (width - len(b))
 
 
 def get_installed_package_version(package_name: str) -> Optional[str]:

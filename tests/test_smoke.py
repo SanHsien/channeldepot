@@ -1716,3 +1716,11 @@ def test_read_channels_file_handles_utf8_bom(tmp_path):
     f.write_bytes("﻿# 註解\n@first\n@second\n".encode("utf-8"))
 
     assert read_channels_file(str(f)) == ["@first", "@second"]
+
+
+def test_is_newer_version_ignores_trailing_zero_segments():
+    from yt_fetch import is_newer_version
+
+    assert not is_newer_version("1.0.0", "1.0")
+    assert not is_newer_version("1.0", "1.0.0")
+    assert is_newer_version("1.0.1", "1.0")
