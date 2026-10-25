@@ -1706,3 +1706,13 @@ def test_load_config_tolerates_percent_in_hand_written_file(monkeypatch, tmp_pat
     monkeypatch.setattr(yt_fetch, "CONFIG_FILE", cfg_path)
 
     assert yt_fetch.load_config()["title_exclude"] == "50%off"
+
+
+def test_read_channels_file_handles_utf8_bom(tmp_path):
+    """PowerShell 5.1 / 記事本可能寫入 BOM；第一行不得被 BOM 污染。"""
+    from yt_fetch import read_channels_file
+
+    f = tmp_path / "channels.txt"
+    f.write_bytes("﻿# 註解\n@first\n@second\n".encode("utf-8"))
+
+    assert read_channels_file(str(f)) == ["@first", "@second"]

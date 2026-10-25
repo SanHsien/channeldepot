@@ -1464,7 +1464,7 @@ def read_channels_file(path: str) -> List[str]:
     if not file_path.exists():
         raise FileNotFoundError(f"找不到頻道清單檔：{path}")
     channels = []
-    for line in file_path.read_text(encoding="utf-8").splitlines():
+    for line in file_path.read_text(encoding="utf-8-sig").splitlines():
         line = line.strip()
         if line and not line.startswith("#"):
             channels.append(line)
