@@ -863,7 +863,7 @@ def build_channel_urls(channel_url: str, include_shorts: bool) -> List[str]:
     `/shorts` 只含 Shorts。若輸入已是 playlist 或已指定特定分頁，則原樣使用。
     """
     path_segments = [seg.lower() for seg in urlparse(channel_url).path.split("/") if seg]
-    if "playlist" in path_segments or "videos" in path_segments or "shorts" in path_segments:
+    if {"playlist", "playlists", "videos", "shorts"} & set(path_segments):
         return [channel_url]
 
     base_url = channel_url.rstrip("/")

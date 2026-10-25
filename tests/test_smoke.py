@@ -1740,3 +1740,6 @@ def test_build_channel_urls_only_treats_real_tab_as_specific_page():
     assert build_channel_urls("https://www.youtube.com/@x/shorts", True) == [
         "https://www.youtube.com/@x/shorts"
     ]
+    assert build_channel_urls("https://www.youtube.com/@x/playlists", False) == [
+        "https://www.youtube.com/@x/playlists"
+    ]
