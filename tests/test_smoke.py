@@ -1680,3 +1680,29 @@ def test_download_videos_defers_member_entitlement_to_youtube_with_cookies(monke
 
     assert [item["id"] for item in downloaded] == [video_id]
     assert all(opts["cookiefile"] == "cookies.txt" for opts in seen_opts)
+
+
+def test_config_roundtrip_preserves_percent(monkeypatch, tmp_path):
+    """標題關鍵字／網址含 % 時，儲存與讀回不得因 ConfigParser 插值而拋例外。"""
+    import yt_fetch
+
+    cfg_path = tmp_path / "yt_fetch.ini"
+    monkeypatch.setattr(yt_fetch, "CONFIG_FILE", cfg_path)
+
+    yt_fetch.save_config(
+        {"title_include": "100% 全紀錄", "channel": "https://www.youtube.com/@%E4%B8%AD"}
+    )
+    cfg = yt_fetch.load_config()
+
+    assert cfg["title_include"] == "100% 全紀錄"
+    assert cfg["channel"] == "https://www.youtube.com/@%E4%B8%AD"
+
+
+def test_load_config_tolerates_percent_in_hand_written_file(monkeypatch, tmp_path):
+    import yt_fetch
+
+    cfg_path = tmp_path / "yt_fetch.ini"
+    cfg_path.write_text("[yt_fetch]\ntitle_exclude = 50%off\n", encoding="utf-8")
+    monkeypatch.setattr(yt_fetch, "CONFIG_FILE", cfg_path)
+
+    assert yt_fetch.load_config()["title_exclude"] == "50%off"

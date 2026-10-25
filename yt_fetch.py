@@ -233,7 +233,7 @@ def load_config() -> Dict:
     if not CONFIG_FILE.exists():
         return cfg
 
-    parser = configparser.ConfigParser()
+    parser = configparser.ConfigParser(interpolation=None)
     try:
         parser.read(CONFIG_FILE, encoding="utf-8")
     except Exception as e:
@@ -302,7 +302,7 @@ def parse_subtitle_languages(value: str) -> List[str]:
 
 def save_config(settings: Dict) -> None:
     """把非敏感設定寫回設定檔（cookies 相關欄位一律不寫入）。"""
-    parser = configparser.ConfigParser()
+    parser = configparser.ConfigParser(interpolation=None)
     if CONFIG_FILE.exists():
         try:
             parser.read(CONFIG_FILE, encoding="utf-8")
