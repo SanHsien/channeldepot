@@ -2085,6 +2085,13 @@ def run_batch_download(
     return results
 
 
+def batch_exit_code(results: List[Dict]) -> int:
+    """批次結束碼：全部頻道失敗回 1；部分失敗或全部成功回 0（失敗頻道列在摘要）。"""
+    if results and all(r["status"] == "fail" for r in results):
+        return 1
+    return 0
+
+
 def run_login() -> int:
     """開啟受控瀏覽器讓使用者登入 YouTube 並保存 cookies。回傳 exit code。"""
     try:
@@ -2228,8 +2235,8 @@ def main():  # noqa: C901
         if not channels:
             logger.error(f"頻道清單檔沒有有效頻道：{args.channels_file}")
             sys.exit(1)
-        run_batch_download(channels, args)
-        sys.exit(0)
+        results = run_batch_download(channels, args)
+        sys.exit(batch_exit_code(results))
 
     # 單一頻道
     try:

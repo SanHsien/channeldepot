@@ -286,6 +286,38 @@ def test_run_batch_download_passes_progress_callback(monkeypatch):
     assert callbacks == [callback, callback]
 
 
+def _run_main_batch(monkeypatch, tmp_path, statuses):
+    """以假的 run_batch_download 驅動 main() 的批次分支，回傳結束碼。"""
+    import yt_fetch
+
+    channels = tmp_path / "channels.txt"
+    channels.write_text("@a\n@b\n", encoding="utf-8")
+    results = [
+        {"channel": f"@c{i}", "status": s, "downloaded": 0, "downloaded_items": [], "error": "x"}
+        for i, s in enumerate(statuses)
+    ]
+    monkeypatch.setattr(sys, "argv", ["yt_fetch.py", "--channels-file", str(channels)])
+    monkeypatch.setattr(yt_fetch, "ensure_venv_and_restart", lambda: False)
+    monkeypatch.setattr(yt_fetch, "write_default_config_if_missing", lambda: None)
+    monkeypatch.setattr(yt_fetch, "load_config", lambda: {})
+    monkeypatch.setattr(yt_fetch, "maybe_use_managed_cookies", lambda a: None)
+    monkeypatch.setattr(yt_fetch, "run_batch_download", lambda ch, a, *r, **k: results)
+    with pytest.raises(SystemExit) as exc:
+        yt_fetch.main()
+    return exc.value.code
+
+
+def test_batch_all_channels_failed_exits_nonzero(monkeypatch, tmp_path):
+    """批次全部頻道失敗時，結束碼不可為 0（否則排程／腳本會誤判成功）"""
+    assert _run_main_batch(monkeypatch, tmp_path, ["fail", "fail"]) == 1
+
+
+def test_batch_partial_failure_still_exits_zero(monkeypatch, tmp_path):
+    """部分頻道失敗維持 0（失敗頻道列在摘要）；全部成功也是 0"""
+    assert _run_main_batch(monkeypatch, tmp_path, ["ok", "fail"]) == 0
+    assert _run_main_batch(monkeypatch, tmp_path, ["ok", "ok"]) == 0
+
+
 # --- --help 乾淨輸出 ---
 
 
