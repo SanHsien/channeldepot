@@ -77,8 +77,10 @@ def test_jobs_without_checkout_tell_gh_which_repository():
     # 沒有 checkout 的 job 裡，gh 只能從 GH_REPO 得知 repo；否則會讀 git remote 而失敗。
     for path in sorted((ROOT / ".github" / "workflows").glob("*.yml")):
         text = path.read_text(encoding="utf-8")
-        jobs = text.split("\njobs:\n", 1)[1]
-        for job in re.split(r"\n(?=  [\w-]+:\n)", jobs):
+        jobs = re.split(r"\n(?=  [\w-]+:\n)", text.split("\njobs:\n", 1)[1])
+        # 每個 job 都要切成獨立一段，否則整檔當一段會因別的 job 有 checkout 而空過。
+        assert sum("runs-on:" in job for job in jobs) == text.count("runs-on:"), path.name
+        for job in jobs:
             name = job.strip().split(":", 1)[0]
             if re.search(r"\bgh ", job) and "actions/checkout" not in job:
                 assert "GH_REPO: ${{ github.repository }}" in job, f"{path.name}: {name}"
