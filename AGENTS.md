@@ -93,3 +93,7 @@ python -m flake8 yt_fetch.py yt_fetch_gui.py chrome_cdp_cookies.py build_exe.py 
 - 修改以下區域前先讀對應文件：cookies／受控登入見 `SECURITY.md` 與 `chrome_cdp_cookies.py`；
   Windows GUI／Release 見 `docs/COMPUTER_USE_VALIDATION.md`；打包與發行見 `docs/RELEASING.md`；
   架構與核心資料流見 `docs/ARCHITECTURE.md`。
+
+## 路線圖
+
+- `ROADMAP.md` 是本 repo 後續工作的單一真相源。完成或新增工作時，在同一個 commit 更新它：做完的列刪掉、新工作加進去。不要在其他文件另列待辦。
