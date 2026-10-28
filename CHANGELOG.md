@@ -8,6 +8,7 @@
 ## [未發布]
 
 ### 維護
+- **建置後端 `setuptools` 下限 `84.0.0` → `84.2.1`（Dependabot #29，安全修補）。** GHSA-xmj3-9gf7-h52w（low，`setuptools >=38.2.2, <84.1.0`，84.1.0 修補）：在 Windows 上，wheel 內特製的 `namespace_packages.txt` 可讓 `Wheel.install_as_egg` 在目標目錄外建立檔案；原下限 84.0.0 在受影響範圍內。對本 repo 實際不適用：沒有 `setup.py`／`setup.cfg`、不用 `setup_requires`，建置走 PEP 517 隔離環境、本來就會裝到最新版。仍然提高，是因為宣告的下限不該落在已知有漏洞的範圍——這是「有安全理由才提高下限」的例外，不是為了消除新鮮度紅燈（本 repo 的新鮮度檢查不讀 `build-system`）。
 - **`yt-dlp` 宣告基線 `2026.8.19` → `2026.10.21`。** 每月依賴新鮮度檢查顯示落後兩個月；yt-dlp 是核心執行期依賴，落後對應 YouTube 改版後下載失敗的風險，這是程式本身需要新版的理由，不是為了消除紅燈。以新基線在乾淨 venv 實測：`yt-dlp 2026.10.21` 安裝成功、159 個測試通過、black／isort／flake8 全綠、`yt-fetch --help` 正常。`requirements.txt` 同步；未發版，EXE 使用者要拿到新版仍需切 tag 重新打包。
 - **`yt-dlp` 宣告基線 `2026.7.4` → `2026.8.19`。** 依賴新鮮度檢查抓到落後六週。yt-dlp 是本專案的核心執行期依賴，落後直接對應 YouTube 改版後下載失敗的風險，不是一般的版本整潔問題。以新基線在乾淨 venv 實測：`yt-dlp 2026.08.19` 安裝成功、152 個測試通過、`yt-fetch --help` 與 `import yt_fetch` 正常。`requirements.txt` 同步。
   - EXE 使用者要拿到新版 yt-dlp，仍需切一個新 tag 讓 release workflow 重新打包；本次只更新宣告與驗證，未發版。
