@@ -19,9 +19,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
+      # 這個 job 沒有 checkout；不給 GH_REPO 時 gh 會去讀 git remote，失敗並回
+      # 「not a git repository」。
       - name: 同步 Dependabot PR 狀態至 freshness tracker
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: gh workflow run dependency-freshness.yml --ref main
 
   classify:

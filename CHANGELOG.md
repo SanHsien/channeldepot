@@ -13,6 +13,7 @@
   - EXE 使用者要拿到新版 yt-dlp，仍需切一個新 tag 讓 release workflow 重新打包；本次只更新宣告與驗證，未發版。
 
 ### 修正
+- **`Dependabot risk review` 的 `sync-freshness` job 每次都失敗。** 這個 job 沒有 checkout，`gh workflow run` 沒有 `GH_REPO` 時會去讀 git remote，回 `failed to run git: fatal: not a git repository`（PR #29、#30 等的 run 都是）。補上 `GH_REPO: ${{ github.repository }}`，與 `dependabot-merge.yml` 相同；新測試要求所有 workflow 中沒有 checkout 卻呼叫 `gh` 的 job 都要設 `GH_REPO`。
 - CLI 批次模式（`--channels-file`）所有頻道都失敗時，結束碼改為 1（先前一律 0，排程或腳本會誤判成功）。部分頻道失敗仍為 0，失敗頻道列在批次摘要的「失敗頻道」行；全部成功為 0。
 - 設定檔值含 `%`（如標題關鍵字 `100%`、百分比編碼的頻道網址）時不再崩潰：存檔不再拋 `ValueError`、讀檔不再拋 `InterpolationSyntaxError`。
 - 批次頻道清單檔帶 UTF-8 BOM 時，第一行不再被污染。
