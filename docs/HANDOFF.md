@@ -1,6 +1,6 @@
 # 接手狀態
 
-更新日期：2026-10-25
+更新日期：2026-10-29
 
 ## 專案概況
 
@@ -27,7 +27,7 @@
 - ✅ 設定檔 `yt_fetch.ini`（configparser）：優先序 CLI > 環境變數 > ini > 內建；**不保存 cookies**。
 - ✅ 多頻道批次下載 `--channels-file`（單一失敗不中斷整批）＋結果報表。
 - ✅ 可測化：抽出 `build_channel_urls`、`filter_downloadable_entries`、`find_downloaded_file`、
-  `filter_reason`、`is_non_public` 等純函式；目前測試數為 159。
+  `filter_reason`、`is_non_public` 等純函式；目前測試數為 167。
 - ✅ UX：`--help` 乾淨輸出、env 數字防呆、Ctrl+C 乾淨退出、cookies 安全提醒。
 - ✅ 跨平台 CI（Ubuntu/Windows/macOS）＋ console script、`--help` smoke 與 Python CodeQL。
 - ✅ 正確性修正：`--count` 以頻道計、Shorts 不誤殺正常短片、下載偵測 glob bug。
@@ -72,6 +72,4 @@
 
 ## 建議下一步
 
-1. 依實際下載錯誤回報擴充核心錯誤診斷分類與提示表，讓 CLI/GUI 同步受益。
-2. 若 GUI 版面再調整，重跑 `tools/generate_readme_screenshot.py` 並同步 README 中英文截圖。
-3. 只有在 `yt-dlp` / `imageio-ffmpeg` 落後、YouTube 行為變動或核心修正需要使用者取得新版 EXE 時，再切 tag 重發。
+見 [`ROADMAP.md`](../ROADMAP.md)。後續工作以此為單一真相源，不在此重複維護。
