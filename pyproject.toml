@@ -27,7 +27,7 @@ classifiers = [
 
 dependencies = [
     "yt-dlp>=2026.10.21",
-    "imageio-ffmpeg>=0.6.0",
+    "imageio-ffmpeg>=0.7.0",
 ]
 
 [project.optional-dependencies]
