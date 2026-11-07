@@ -1,0 +1,8 @@
+{
+  "deferrals": {
+    "imageio-ffmpeg": {
+      "deferredLatest": "0.8.1",
+      "reason": "imageio-ffmpeg 只提供內建 ffmpeg 執行檔；0.7.0 下限已足夠，新鮮度落後不構成提高下限的理由（建置與安裝本來就會取得最新版）。PyPI 超過 0.8.1 時重新評估。"
+    }
+  }
+}

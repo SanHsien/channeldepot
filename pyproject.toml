@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "yt-fetch"
-version = "1.9.2"
+version = "1.9.3"
 description = "ChannelDepot — portable YouTube channel archiving with GUI, batch workflows, filters, and authorized sign-in cookies"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -26,7 +26,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "yt-dlp>=2026.10.21",
+    "yt-dlp>=2026.10.26",
     "imageio-ffmpeg>=0.7.0",
 ]
 

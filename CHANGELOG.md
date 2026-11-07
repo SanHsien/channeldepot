@@ -7,23 +7,14 @@
 
 ## [未發布]
 
+## [1.9.3] - 2026-11-08
+
 ### 維護
+- **`yt-dlp` 宣告基線 `2026.10.21` → `2026.10.26`。** 發版前對齊 PyPI 最新版（追蹤 issue #19 列出的落後）。以新基線在乾淨 venv 實測：`yt-dlp 2026.10.26` 安裝成功、167 個測試通過、black／isort／flake8 全綠、`yt-fetch --help` 正常。`requirements.txt` 同步。`imageio-ffmpeg` 下限維持 `0.7.0`（只提供內建 ffmpeg 執行檔，不因新鮮度提高下限），以 `.github/dependency-deferrals.json` 記錄延後。
 - **建置後端 `setuptools` 下限 `84.0.0` → `84.2.1`（Dependabot #29，安全修補）。** GHSA-xmj3-9gf7-h52w（low，`setuptools >=38.2.2, <84.1.0`，84.1.0 修補）：在 Windows 上，wheel 內特製的 `namespace_packages.txt` 可讓 `Wheel.install_as_egg` 在目標目錄外建立檔案；原下限 84.0.0 在受影響範圍內。對本 repo 實際不適用：沒有 `setup.py`／`setup.cfg`、不用 `setup_requires`，建置走 PEP 517 隔離環境、本來就會裝到最新版。仍然提高，是因為宣告的下限不該落在已知有漏洞的範圍——這是「有安全理由才提高下限」的例外，不是為了消除新鮮度紅燈（本 repo 的新鮮度檢查不讀 `build-system`）。
 - **`yt-dlp` 宣告基線 `2026.8.19` → `2026.10.21`。** 每月依賴新鮮度檢查顯示落後兩個月；yt-dlp 是核心執行期依賴，落後對應 YouTube 改版後下載失敗的風險，這是程式本身需要新版的理由，不是為了消除紅燈。以新基線在乾淨 venv 實測：`yt-dlp 2026.10.21` 安裝成功、159 個測試通過、black／isort／flake8 全綠、`yt-fetch --help` 正常。`requirements.txt` 同步；未發版，EXE 使用者要拿到新版仍需切 tag 重新打包。
 - **`yt-dlp` 宣告基線 `2026.7.4` → `2026.8.19`。** 依賴新鮮度檢查抓到落後六週。yt-dlp 是本專案的核心執行期依賴，落後直接對應 YouTube 改版後下載失敗的風險，不是一般的版本整潔問題。以新基線在乾淨 venv 實測：`yt-dlp 2026.08.19` 安裝成功、152 個測試通過、`yt-fetch --help` 與 `import yt_fetch` 正常。`requirements.txt` 同步。
   - EXE 使用者要拿到新版 yt-dlp，仍需切一個新 tag 讓 release workflow 重新打包；本次只更新宣告與驗證，未發版。
-
-### 修正
-- **`Dependabot risk review` 的 `sync-freshness` job 每次都失敗。** 這個 job 沒有 checkout，`gh workflow run` 沒有 `GH_REPO` 時會去讀 git remote，回 `failed to run git: fatal: not a git repository`（PR #29、#30 等的 run 都是）。補上 `GH_REPO: ${{ github.repository }}`，與 `dependabot-merge.yml` 相同；新測試要求所有 workflow 中沒有 checkout 卻呼叫 `gh` 的 job 都要設 `GH_REPO`。
-- CLI 批次模式（`--channels-file`）所有頻道都失敗時，結束碼改為 1（先前一律 0，排程或腳本會誤判成功）。部分頻道失敗仍為 0，失敗頻道列在批次摘要的「失敗頻道」行；全部成功為 0。
-- 設定檔值含 `%`（如標題關鍵字 `100%`、百分比編碼的頻道網址）時不再崩潰：存檔不再拋 `ValueError`、讀檔不再拋 `InterpolationSyntaxError`。
-- 批次頻道清單檔帶 UTF-8 BOM 時，第一行不再被污染。
-- `1.0` 與 `1.0.0` 不再被判為有新版。
-- 頻道自訂網址名稱剛好含 `videos`／`shorts` 字樣（如 `/c/shortsbreak`）時，仍會補上 `/videos` 分頁。
-- 修正依賴新鮮度排程安裝最新版後再與 PyPI 最新版比較、因而可能長期誤報 `OK` 的問題；
-  現在會比較 repo 宣告的版本基線，查詢失敗也會建立維護提醒。
-
-### 維護
 - 新增每週 Dependabot 檢查，涵蓋 Python 執行期／開發／建置依賴及 GitHub Actions。
 - 依賴新鮮度報告會寫入 Actions Job Summary，依賴恢復最新時自動關閉既有提醒 issue。
 - Dependabot 風險判斷已整合進每週維護流程：CI 直接覆蓋的開發／建置工具僅在五平台 CI、
@@ -39,6 +30,16 @@
   取消較舊 pending event 時漏掉已完成 checks 的 PR。
 - 人工審查型 Dependabot PR 的 opened／reopened／synchronize／ready-for-review／closed
   事件也會即時同步 freshness tracker，不必等人工合併或月排程。
+
+### 修正
+- **`Dependabot risk review` 的 `sync-freshness` job 每次都失敗。** 這個 job 沒有 checkout，`gh workflow run` 沒有 `GH_REPO` 時會去讀 git remote，回 `failed to run git: fatal: not a git repository`（PR #29、#30 等的 run 都是）。補上 `GH_REPO: ${{ github.repository }}`，與 `dependabot-merge.yml` 相同；新測試要求所有 workflow 中沒有 checkout 卻呼叫 `gh` 的 job 都要設 `GH_REPO`。
+- CLI 批次模式（`--channels-file`）所有頻道都失敗時，結束碼改為 1（先前一律 0，排程或腳本會誤判成功）。部分頻道失敗仍為 0，失敗頻道列在批次摘要的「失敗頻道」行；全部成功為 0。
+- 設定檔值含 `%`（如標題關鍵字 `100%`、百分比編碼的頻道網址）時不再崩潰：存檔不再拋 `ValueError`、讀檔不再拋 `InterpolationSyntaxError`。
+- 批次頻道清單檔帶 UTF-8 BOM 時，第一行不再被污染。
+- `1.0` 與 `1.0.0` 不再被判為有新版。
+- 頻道自訂網址名稱剛好含 `videos`／`shorts` 字樣（如 `/c/shortsbreak`）時，仍會補上 `/videos` 分頁。
+- 修正依賴新鮮度排程安裝最新版後再與 PyPI 最新版比較、因而可能長期誤報 `OK` 的問題；
+  現在會比較 repo 宣告的版本基線，查詢失敗也會建立維護提醒。
 
 ## [1.9.2] - 2026-07-26
 
@@ -384,7 +385,8 @@
 - **次版本號**：向下相容的功能新增
 - **修訂號**：向下相容的問題修正
 
-[未發布]: https://github.com/SanHsien/channeldepot/compare/v1.9.2...HEAD
+[未發布]: https://github.com/SanHsien/channeldepot/compare/v1.9.3...HEAD
+[1.9.3]: https://github.com/SanHsien/channeldepot/compare/v1.9.2...v1.9.3
 [1.9.2]: https://github.com/SanHsien/channeldepot/compare/v1.9.1...v1.9.2
 [1.9.1]: https://github.com/SanHsien/channeldepot/compare/v1.9.0...v1.9.1
 [1.9.0]: https://github.com/SanHsien/channeldepot/compare/v1.8.0...v1.9.0

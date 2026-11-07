@@ -58,9 +58,9 @@
   wheel build 與 CodeQL 通過後自動核准，並以全域序列在必要時 rebase，再 squash merge、
   關閉 PR 與刪分支；執行期、未覆蓋的發布工具、Actions major 與異常範圍保留人工 Gate。
 
-當前版本：`1.9.2`（pyproject、__version__ 與 CHANGELOG 同步；`v1.9.2` GitHub Release
-已發布，正式 Windows ZIP 的 checksum、CRC、壓縮結構與解壓均已驗證）。
-未發布：宣告基線已升至 `yt-dlp>=2026.10.21`，尚未重發 EXE。
+當前版本：`1.9.3`（pyproject、__version__ 與 CHANGELOG 同步；基線 `yt-dlp>=2026.10.26`、
+`imageio-ffmpeg>=0.7.0`）。`v1.9.2` 是最近一次已發布的 GitHub Release；`v1.9.3` 待 tag 後
+由 release workflow 打包 EXE。
 
 ## 已知注意事項
 
