@@ -47,7 +47,10 @@ def declared_minimum_version(
     pyproject_path: Path = ROOT / "pyproject.toml",
 ) -> Optional[str]:
     """讀取 ``[project].dependencies`` 中套件的 ``>=`` 版本基線。"""
-    content = pyproject_path.read_text(encoding="utf-8")
+    try:
+        content = pyproject_path.read_text(encoding="utf-8")
+    except OSError:
+        return None
     project_match = re.search(r"(?ms)^\[project\]\s*(.*?)(?=^\[|\Z)", content)
     if not project_match:
         return None
@@ -67,6 +70,38 @@ def declared_minimum_version(
         if match and normalize_package_name(match.group(1)) == wanted:
             return match.group(2)
     return None
+
+
+def declared_requires_python(
+    pyproject_path: Path = ROOT / "pyproject.toml",
+) -> Optional[str]:
+    """讀取 ``[project].requires-python`` 宣告。"""
+    try:
+        content = pyproject_path.read_text(encoding="utf-8")
+    except OSError:
+        return None
+    project_match = re.search(r"(?ms)^\[project\]\s*(.*?)(?=^\[|\Z)", content)
+    if not project_match:
+        return None
+    match = re.search(r"""(?m)^requires-python\s*=\s*["']([^"']+)["']""", project_match.group(1))
+    return match.group(1).strip() if match else None
+
+
+def supports_python_version(specifier: Optional[str], version: str = "3.10") -> bool:
+    """判斷 requires-python 宣告是否涵蓋指定 Python 版本。"""
+    if not specifier:
+        return False
+    try:
+        from packaging.specifiers import SpecifierSet
+
+        return SpecifierSet(specifier).contains(version)
+    except Exception:
+        m = re.match(r">=(\d+)\.(\d+)", specifier.strip())
+        if m:
+            req_major, req_minor = int(m.group(1)), int(m.group(2))
+            v_parts = [int(x) for x in version.split(".")[:2]]
+            return (v_parts[0], v_parts[1]) >= (req_major, req_minor)
+        return False
 
 
 HOLD_MARKER = "freshness-hold:"

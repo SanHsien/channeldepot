@@ -8,7 +8,9 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
+import yt_fetch
 from tools import check_dependency_freshness as freshness
 
 
@@ -71,3 +73,49 @@ def test_aged_floor_needs_review_unless_held_or_deferred():
     assert not freshness.needs_review(
         {"outdated": True, "hold": "", "deferred_reason": "已評估，等重打 EXE"}
     )
+
+
+def check_yt_dlp_baseline_compatibility(pyproject: Path) -> None:
+    requires_python = freshness.declared_requires_python(pyproject)
+    if not freshness.supports_python_version(requires_python, "3.10"):
+        return
+
+    declared_yt_dlp = freshness.declared_minimum_version("yt-dlp", pyproject)
+    assert declared_yt_dlp is not None
+
+    # yt-dlp 2026.10.21 是支援 Python 3.10 的最後一個版本
+    assert not yt_fetch.is_newer_version(
+        declared_yt_dlp, "2026.10.21"
+    ), f"yt-dlp 宣告基線為 {declared_yt_dlp}，高於支援 Python 3.10 的最後版本 2026.10.21"
+
+    hold = freshness.declared_hold("yt-dlp", pyproject)
+    assert (
+        hold
+    ), "yt-dlp 維持在支援 Python 3.10 的版本，必須在 pyproject.toml 宣告行加 # freshness-hold:"
+
+
+def test_yt_dlp_baseline_compatible_with_python_310_support():
+    """yt-dlp 2026.10.26 開始要求 Python >= 3.11。
+
+    專案若支援 Python 3.10，宣告的 yt-dlp 下限不得超過 2026.10.21，
+    且必須透過 freshness-hold 說明維持宣告的理由。
+    """
+    pyproject = Path(__file__).resolve().parent.parent / "pyproject.toml"
+    assert freshness.supports_python_version(
+        freshness.declared_requires_python(pyproject), "3.10"
+    ), "專案目前預期涵蓋 Python 3.10"
+    check_yt_dlp_baseline_compatibility(pyproject)
+
+
+def test_yt_dlp_baseline_when_python_310_not_supported(tmp_path):
+    """若專案不涵蓋 Python 3.10，不應阻擋高於 2026.10.21 的 yt-dlp 基線。"""
+    pyproject = tmp_path / "pyproject.toml"
+    pyproject.write_text(
+        "[project]\n"
+        'requires-python = ">=3.11"\n'
+        "dependencies = [\n"
+        '    "yt-dlp>=2026.10.26",\n'
+        "]\n",
+        encoding="utf-8",
+    )
+    check_yt_dlp_baseline_compatibility(pyproject)

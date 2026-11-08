@@ -7,7 +7,7 @@
 
 `yt_fetch` 是 CLI＋Tkinter GUI＋Windows 免安裝 EXE 的 YouTube 頻道下載工具（public、非 fork）。2026-11-08 查：Dependabot alerts open 0（`gh api repos/SanHsien/channeldepot/dependabot/alerts?state=open`）；唯一的 open issue 是 #19（依賴新鮮度追蹤器）；最近 release 是 v1.9.2（2026-07-26）。
 
-2026-11-08 決定發 v1.9.3：`[未發布]` 已累積 yt-dlp 基線升版、批次全失敗結束碼改 1、設定檔 `%` 崩潰等使用者可見修正，EXE 使用者要新 tag 才拿得到（`docs/RELEASING.md` 週期性依賴維護段）；重審條件是下載實測失敗時改走緊急發版（見中期）。發版前已把 yt-dlp 基線對齊 PyPI 最新（`yt-dlp>=2026.10.26`）；`imageio-ffmpeg` 下限維持 `0.7.0`，以 `.github/dependency-deferrals.json` 記錄延後（不為消除新鮮度紅燈而提高下限），版號改為 1.9.3、`CHANGELOG.md` 轉成 `[1.9.3] - 2026-11-08`，本機 167 個測試與 black／isort／flake8 通過；tag 尚未推送。
+2026-11-08 決定發 v1.9.3：`[未發布]` 已累積 yt-dlp 基線升版、批次全失敗結束碼改 1、設定檔 `%` 崩潰等使用者可見修正，EXE 使用者要新 tag 才拿得到（`docs/RELEASING.md` 週期性依賴維護段）；重審條件是下載實測失敗時改走緊急發版（見中期）。發版前 yt-dlp 基線維持在 2026.10.21（因 2026.10.26+ 要求 Python 3.11+，以 freshness-hold 維持 Python 3.10 相容性）；`imageio-ffmpeg` 下限維持 `0.7.0`，以 `.github/dependency-deferrals.json` 記錄延後（不為消除新鮮度紅燈而提高下限），版號改為 1.9.3、`CHANGELOG.md` 轉成 `[1.9.3] - 2026-11-08`，本機 169 個測試與 black／isort／flake8 通過；tag 尚未推送。
 
 ## 近期：可以直接動手
 | 項目 | 為什麼 | 驗收方式 | 建議執行者 | 證據 |

@@ -10,7 +10,7 @@
 ## [1.9.3] - 2026-11-08
 
 ### 維護
-- **`yt-dlp` 宣告基線 `2026.10.21` → `2026.10.26`。** 發版前對齊 PyPI 最新版（追蹤 issue #19 列出的落後）。以新基線在乾淨 venv 實測：`yt-dlp 2026.10.26` 安裝成功、167 個測試通過、black／isort／flake8 全綠、`yt-fetch --help` 正常。`requirements.txt` 同步。`imageio-ffmpeg` 下限維持 `0.7.0`（只提供內建 ffmpeg 執行檔，不因新鮮度提高下限），以 `.github/dependency-deferrals.json` 記錄延後。
+- **`yt-dlp` 宣告基線維持 `2026.10.21`（以 `freshness-hold` 保留 Python 3.10 相容性）。** `yt-dlp 2026.10.26` 放棄 Python 3.10（要求 `Python >= 3.11`）；為維持專案 `requires-python = ">=3.10"` 的相容性承諾與 CI 矩陣相容性，`pyproject.toml` 與 `requirements.txt` 宣告基線維持在支援 Python 3.10 的最後版本 `2026.10.21`，並依 `AGENTS.md` 規則於宣告行標註 `# freshness-hold:`。`imageio-ffmpeg` 下限維持 `0.7.0`（只提供內建 ffmpeg 執行檔，不因新鮮度提高下限），以 `.github/dependency-deferrals.json` 記錄延後。
 - **建置後端 `setuptools` 下限 `84.0.0` → `84.2.1`（Dependabot #29，安全修補）。** GHSA-xmj3-9gf7-h52w（low，`setuptools >=38.2.2, <84.1.0`，84.1.0 修補）：在 Windows 上，wheel 內特製的 `namespace_packages.txt` 可讓 `Wheel.install_as_egg` 在目標目錄外建立檔案；原下限 84.0.0 在受影響範圍內。對本 repo 實際不適用：沒有 `setup.py`／`setup.cfg`、不用 `setup_requires`，建置走 PEP 517 隔離環境、本來就會裝到最新版。仍然提高，是因為宣告的下限不該落在已知有漏洞的範圍——這是「有安全理由才提高下限」的例外，不是為了消除新鮮度紅燈（本 repo 的新鮮度檢查不讀 `build-system`）。
 - **`yt-dlp` 宣告基線 `2026.8.19` → `2026.10.21`。** 每月依賴新鮮度檢查顯示落後兩個月；yt-dlp 是核心執行期依賴，落後對應 YouTube 改版後下載失敗的風險，這是程式本身需要新版的理由，不是為了消除紅燈。以新基線在乾淨 venv 實測：`yt-dlp 2026.10.21` 安裝成功、159 個測試通過、black／isort／flake8 全綠、`yt-fetch --help` 正常。`requirements.txt` 同步；未發版，EXE 使用者要拿到新版仍需切 tag 重新打包。
 - **`yt-dlp` 宣告基線 `2026.7.4` → `2026.8.19`。** 依賴新鮮度檢查抓到落後六週。yt-dlp 是本專案的核心執行期依賴，落後直接對應 YouTube 改版後下載失敗的風險，不是一般的版本整潔問題。以新基線在乾淨 venv 實測：`yt-dlp 2026.08.19` 安裝成功、152 個測試通過、`yt-fetch --help` 與 `import yt_fetch` 正常。`requirements.txt` 同步。

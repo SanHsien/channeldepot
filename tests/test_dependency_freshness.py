@@ -12,6 +12,8 @@ def test_collect_status_marks_outdated(monkeypatch):
         lambda name: "2026.3.17",
     )
     monkeypatch.setattr(check_dependency_freshness, "fetch_pypi_version", lambda name: "2026.6.9")
+    monkeypatch.setattr(check_dependency_freshness, "declared_hold", lambda name: "")
+    monkeypatch.setattr(check_dependency_freshness, "load_deferrals", lambda: {})
 
     rows = check_dependency_freshness.collect_status(["yt-dlp"])
 

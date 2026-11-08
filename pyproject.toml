@@ -26,7 +26,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "yt-dlp>=2026.10.26",
+    "yt-dlp>=2026.10.21",  # freshness-hold: 矩陣維持支援 Python 3.10，yt-dlp 2026.10.26+ 要求 Python 3.11+
     "imageio-ffmpeg>=0.7.0",
 ]
 
