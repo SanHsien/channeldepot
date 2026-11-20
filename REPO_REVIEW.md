@@ -8,15 +8,16 @@ v1.9.3 前後 43 個 commit 的程式與宣稱行為的文件。
 ## 2026-11-20 增量覆核
 
 未發現安全類缺陷。確認的三項與兩項待驗證項目都已在 `6f3947c`（2026-11-20）修正，每項都有
-修前紅、修後綠的回歸測試；`pytest` 188 passed。
+修前紅、修後綠的回歸測試。獨立驗證另抓到 `6f3947c` 引入的兩個回歸，已在 `5fee9c6`
+（2026-11-20）修正；`pytest` 195 passed。
 
 | 項目 | 狀態 | 回歸測試 |
 | --- | --- | --- |
 | C1 `--include-shorts` 對 `@handle`／UC ID／純名稱無效（`normalize_channel_url` 先補 `/videos`） | 已修 `6f3947c`（2026-11-20） | `test_include_shorts_reaches_shorts_tab_for_handle_id_and_bare_name` |
 | C2 頻道名稱等於 videos／shorts／playlists 被當成分頁 | 已修 `6f3947c`（2026-11-20） | `test_channel_named_exactly_like_a_tab_still_gets_videos_tab` |
 | C3 PowerShell 5.1 `>` 產生的 UTF-16LE 清單檔讓 CLI traceback | 已修 `6f3947c`（2026-11-20） | `test_read_channels_file_accepts_powershell51_utf16`、`test_undecodable_channels_file_exits_with_message_not_traceback` |
-| N1 `?si=` 與 `/featured`、`/live` 等分頁組出畸形網址 | 離線重現屬實（`@x?si=abc/videos`、`@x/streams/videos`），已修 `6f3947c`（2026-11-20）；`/streams` 視為明確分頁原樣使用 | `test_share_link_query_does_not_leak_tab_into_query_string`、`test_non_video_tab_is_replaced_not_nested`、`test_streams_tab_is_kept_as_explicit_choice`、`test_playlist_url_keeps_its_list_query` |
-| N2 批次把安全退出（exit 0）記為失敗，與單頻道語義不一致 | 離線重現屬實（全部安全退出 → 批次 1、單頻道 0）；依單頻道既有語義改記 `skipped`，已修 `6f3947c`（2026-11-20） | `test_batch_safe_exit_is_not_counted_as_failure` |
+| N1 `?si=` 與 `/featured`、`/live` 等分頁組出畸形網址 | 離線重現屬實（`@x?si=abc/videos`、`@x/streams/videos`），已修 `6f3947c`（2026-11-20）；`/streams` 視為明確分頁原樣使用。`6f3947c` 把單支 Shorts 網址 `/shorts/<id>` 變成 `/shorts/videos`（回歸），另 `/live/<id>`、`youtu.be/<id>` 原本就被補 `/videos`；單支影片網址一律原樣使用，已修 `5fee9c6`（2026-11-20） | `test_share_link_query_does_not_leak_tab_into_query_string`、`test_non_video_tab_is_replaced_not_nested`、`test_streams_tab_is_kept_as_explicit_choice`、`test_playlist_url_keeps_its_list_query`、`test_single_video_url_is_not_turned_into_a_channel_tab` |
+| N2 批次把安全退出（exit 0）記為失敗，與單頻道語義不一致 | 離線重現屬實（全部安全退出 → 批次 1、單頻道 0）；依單頻道既有語義改記 `skipped`，已修 `6f3947c`（2026-11-20）。`6f3947c` 讓「一個略過＋一個失敗」回 0、掩蓋失敗（回歸）；規則改為至少一個失敗且無成功回 1，已修 `5fee9c6`（2026-11-20） | `test_batch_safe_exit_is_not_counted_as_failure`、`test_batch_skipped_plus_failed_without_success_exits_nonzero` |
 | H1 `GITHUB_REPO` 仍為改名前的 `SanHsien/yt_fetch` | 已修 `6f3947c`（2026-11-20） | `test_update_check_points_at_current_repository_name` |
 | H2 `freshness-hold` 無失效條件、掃整份 `pyproject.toml` | 未修：改的是依賴新鮮度政策的判準，需維護者決定放掉 Python 3.10 時的處理方式；目前 hold 有理由且正確 | — |
 | H3 Dependabot `ignore >=0.8.1` 無上限，與自動過期的 deferral 不同步 | 未修：需先確認 GitHub `ignore` 是否也擋 security updates，無法離線驗證；改 workflow 設定非 trivial | — |
