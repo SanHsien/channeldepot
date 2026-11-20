@@ -1925,3 +1925,36 @@ def test_update_check_points_at_current_repository_name():
     match = re.search(r'^Repository\s*=\s*"https://github\.com/([^"]+?)/?"', pyproject, re.M)
     assert match, "pyproject.toml 缺少 [project.urls] Repository"
     assert yt_fetch.GITHUB_REPO == match.group(1)
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        "https://www.youtube.com/shorts/abc123",
+        "https://www.youtube.com/live/abc123",
+        "https://www.youtube.com/embed/abc123",
+        "https://www.youtube.com/watch?v=abc123",
+        "https://youtu.be/abc123",
+        "https://youtu.be/abc123?si=xyz",
+    ],
+)
+def test_single_video_url_is_not_turned_into_a_channel_tab(url):
+    """單支影片網址（/shorts/<id>、/live/<id>、youtu.be/<id>…）要原樣使用，不可變成 `/shorts/videos`。"""
+    from yt_fetch import build_channel_urls
+
+    assert build_channel_urls(url, include_shorts=False) == [url]
+    assert build_channel_urls(url, include_shorts=True) == [url]
+
+
+def test_batch_skipped_plus_failed_without_success_exits_nonzero():
+    """安全略過不可掩蓋真正失敗：沒有任何頻道成功、且至少一個失敗時結束碼必須是 1。"""
+    from yt_fetch import batch_exit_code
+
+    def r(status):
+        return {"channel": "@x", "status": status, "downloaded": 0, "error": None}
+
+    assert batch_exit_code([r("skipped"), r("fail")]) == 1
+    assert batch_exit_code([r("fail")]) == 1
+    assert batch_exit_code([r("skipped"), r("skipped")]) == 0
+    assert batch_exit_code([r("ok"), r("fail")]) == 0
+    assert batch_exit_code([r("ok"), r("skipped")]) == 0

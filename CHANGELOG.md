@@ -10,9 +10,9 @@
 ### 修正
 - **`--include-shorts` 對 `@handle`、頻道 ID、純名稱輸入無效。** `normalize_channel_url` 先補了 `/videos`，`build_channel_urls` 視為已指定分頁而不抓 `/shorts`；現在 normalize 只回頻道根網址。
 - **頻道名稱剛好是 `videos`／`shorts`／`playlists`（如 `/c/videos`、`/user/Shorts`）被當成分頁。** 分頁改為只看頻道識別段之後的那一段。
-- **分享連結的 `?si=` 與 `/featured`、`/live` 等分頁組出畸形網址**（`@x?si=abc/videos`、`@x/featured/videos`）。現在捨棄 query／fragment、把非影片清單分頁換成 `/videos`；`/streams` 視為使用者明確指定的分頁原樣使用。
+- **分享連結的 `?si=` 與 `/featured`、`/live` 等分頁組出畸形網址**（`@x?si=abc/videos`、`@x/featured/videos`）。現在捨棄 query／fragment、把非影片清單分頁換成 `/videos`；`/streams` 視為使用者明確指定的分頁原樣使用；單支影片網址（`/watch`、`/shorts/<id>`、`/live/<id>`、`/embed/<id>`、`youtu.be/<id>`）原樣使用，不再被補成 `/shorts/videos`、`youtu.be/<id>/videos`。
 - **Windows PowerShell 5.1 `>` 產生的 UTF-16 頻道清單檔讓 CLI 崩潰。** 依 BOM 以 UTF-16 讀取；仍無法解碼時顯示可讀錯誤並以結束碼 1 結束。
-- **批次模式把安全退出（單頻道結束碼 0）記成失敗**，全部頻道安全退出時批次回 1。現在記為「安全略過」，不計入失敗。
+- **批次模式把安全退出（單頻道結束碼 0）記成失敗**，全部頻道安全退出時批次回 1。現在記為「安全略過」。批次結束碼規則：至少一個頻道失敗且沒有任何頻道成功時回 1，其餘（含全部安全略過、部分成功）回 0；安全略過不會掩蓋同批的真正失敗。
 - 檢查更新與 Releases 連結改指向 `SanHsien/channeldepot`，不再依賴改名轉址。
 
 ## [1.9.3] - 2026-11-08

@@ -873,7 +873,11 @@ def build_channel_urls(channel_url: str, include_shorts: bool) -> List[str]:
     """
     parsed = urlparse(channel_url)
     segments = [seg for seg in parsed.path.split("/") if seg]
-    if not segments or segments[0].lower() in _PASSTHROUGH_ROOT_SEGMENTS:
+    if (
+        not segments
+        or (parsed.hostname or "").lower() == "youtu.be"
+        or segments[0].lower() in _PASSTHROUGH_ROOT_SEGMENTS
+    ):
         return [channel_url]
 
     id_len = 2 if segments[0].lower() in _CHANNEL_PREFIX_SEGMENTS else 1
@@ -886,8 +890,9 @@ def build_channel_urls(channel_url: str, include_shorts: bool) -> List[str]:
     return [f"{base_url}/videos"]
 
 
-# build_channel_urls 用：路徑第一段是這些時，整個網址就是要抓的目標（query 必要，例如 ?list=）
-_PASSTHROUGH_ROOT_SEGMENTS = frozenset({"playlist", "watch"})
+# build_channel_urls 用：路徑第一段是這些時，網址指向播放清單或單支影片
+# （`/shorts/<id>`、`/live/<id>`、`/embed/<id>`），整個網址原樣使用（query 可能必要，如 ?list=）
+_PASSTHROUGH_ROOT_SEGMENTS = frozenset({"playlist", "watch", "shorts", "live", "embed"})
 # 頻道識別佔兩段的前綴（`channel/<id>`、`c/<name>`、`user/<name>`）
 _CHANNEL_PREFIX_SEGMENTS = frozenset({"channel", "c", "user"})
 # 使用者明確指定、本身就是影片清單的分頁
@@ -2129,11 +2134,13 @@ def run_batch_download(
 
 
 def batch_exit_code(results: List[Dict]) -> int:
-    """批次結束碼：全部頻道失敗回 1；部分失敗或全部成功回 0（失敗頻道列在摘要）。
+    """批次結束碼：至少一個頻道失敗且沒有任何頻道成功時回 1，其餘回 0（失敗頻道列在摘要）。
 
-    安全略過（skipped）不算失敗，與單頻道模式安全退出回 0 一致。
+    安全略過（skipped）本身不算失敗（全部略過回 0，與單頻道安全退出一致），但也不算成功，
+    不能掩蓋同批的真正失敗。
     """
-    if results and all(r["status"] == "fail" for r in results):
+    statuses = {r["status"] for r in results}
+    if "fail" in statuses and "ok" not in statuses:
         return 1
     return 0
 
