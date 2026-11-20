@@ -30,7 +30,8 @@
 2. `ensure_venv_and_restart()` 確認虛擬環境與必要套件。
 3. `parse_args()` 解析 CLI 參數。
 4. 參數不足時，`prompt_user_input()` 改用互動輸入。
-5. `normalize_channel_url()` 驗證 HTTPS YouTube host，並將輸入轉為 YouTube videos 頁面。
+5. `normalize_channel_url()` 驗證 HTTPS YouTube host，並將 `@handle`／頻道 ID／名稱轉為頻道根網址；
+   要抓 `/videos` 或 `/shorts` 分頁由 `build_channel_urls()` 依 `--include-shorts` 決定。
 6. `check_ffmpeg()` / `install_ffmpeg()` 確保可合併最佳影音格式。
 7. `download_videos()` 使用 `yt-dlp` 擷取影片列表、過濾非公開內容與 Shorts；有合法 cookies
    時保留需登入候選給 YouTube 驗證帳號權限，再依畫質選項下載目標數量。

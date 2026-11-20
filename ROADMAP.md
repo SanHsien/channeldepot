@@ -19,7 +19,6 @@
 | --- | --- | --- | --- | --- |
 | 依實際下載錯誤回報擴充核心錯誤診斷分類與提示表 | 維護者或使用者回報一個目前提示不夠清楚的下載錯誤 | 該錯誤有重現測試（修前紅、修後綠）；CLI 與 GUI 顯示同一提示；`pytest` 與 black／isort／flake8 乾淨 | Claude Sonnet | `docs/HANDOFF.md`（`5e5661d` 版第 75 行） |
 | GUI 改版後重產 README 截圖 | GUI 版面有改動 | 重跑 `tools/generate_readme_screenshot.py`，`README.md` 與 `README.en.md` 截圖同步更新 | 維護者（GUI 實機畫面） | `docs/HANDOFF.md`（`5e5661d` 版第 76 行）；`docs/screenshot-workflow.md` |
-| 處理 `/live`、`/streams`、`?si=` 網址仍被補 `/videos` | 有人用這類網址下載失敗 | `build_channel_urls` 對這些網址的測試通過且不回歸 `/playlists`、`/c/shortsbreak` 既有案例 | Claude Sonnet | `yt_fetch.py` `build_channel_urls`；深掃報告（2026-10-26）「刻意不修」 |
 | 因 YouTube 改版導致下載失敗時的緊急發版 | 下載實測失敗且 `yt-dlp` 新版已修 | 基線升至能下載的 yt-dlp 版本、實機下載成功、tag 後 EXE 重打 | 維護者 | `docs/HANDOFF.md`（`5e5661d` 版第 77 行）；`docs/third-party-youtube-tooling.md` |
 
 ## 刻意不做

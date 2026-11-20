@@ -15,11 +15,11 @@ def test_import_module():
 
 
 def test_normalize_channel_url_handle():
-    """@handle 會被正規化為 /videos 頁面"""
+    """@handle 會被正規化為頻道根網址（分頁交給 build_channel_urls）"""
     from yt_fetch import normalize_channel_url
 
     url = normalize_channel_url("@example_channel")
-    assert url == "https://www.youtube.com/@example_channel/videos"
+    assert url == "https://www.youtube.com/@example_channel"
 
 
 def test_normalize_channel_url_full_url_passthrough():
@@ -31,12 +31,12 @@ def test_normalize_channel_url_full_url_passthrough():
 
 
 def test_normalize_channel_url_channel_id():
-    """24 碼 UC 開頭頻道 ID 轉為 /channel/<id>/videos"""
+    """24 碼 UC 開頭頻道 ID 轉為 /channel/<id>"""
     from yt_fetch import normalize_channel_url
 
     channel_id = "UC" + "x" * 22  # 共 24 碼
     url = normalize_channel_url(channel_id)
-    assert url == f"https://www.youtube.com/channel/{channel_id}/videos"
+    assert url == f"https://www.youtube.com/channel/{channel_id}"
 
 
 def test_normalize_channel_url_bare_name_treated_as_handle():
@@ -44,7 +44,7 @@ def test_normalize_channel_url_bare_name_treated_as_handle():
     from yt_fetch import normalize_channel_url
 
     url = normalize_channel_url("example")
-    assert url == "https://www.youtube.com/@example/videos"
+    assert url == "https://www.youtube.com/@example"
 
 
 def test_normalize_channel_url_strips_whitespace():
@@ -52,7 +52,7 @@ def test_normalize_channel_url_strips_whitespace():
     from yt_fetch import normalize_channel_url
 
     url = normalize_channel_url("  @example  ")
-    assert url == "https://www.youtube.com/@example/videos"
+    assert url == "https://www.youtube.com/@example"
 
 
 def test_normalize_channel_url_videos_shorts_playlist_passthrough():
@@ -1775,3 +1775,153 @@ def test_build_channel_urls_only_treats_real_tab_as_specific_page():
     assert build_channel_urls("https://www.youtube.com/@x/playlists", False) == [
         "https://www.youtube.com/@x/playlists"
     ]
+
+
+@pytest.mark.parametrize(
+    "channel_input",
+    ["@somechan", "UC" + "a" * 22, "somechan"],
+)
+def test_include_shorts_reaches_shorts_tab_for_handle_id_and_bare_name(channel_input):
+    """README 宣稱 `--channel "@handle" --include-shorts` 會抓 Shorts；normalize 不得先鎖死 /videos。"""
+    from yt_fetch import build_channel_urls, normalize_channel_url
+
+    channel_url = normalize_channel_url(channel_input)
+
+    with_shorts = build_channel_urls(channel_url, include_shorts=True)
+    assert [u.rsplit("/", 1)[-1] for u in with_shorts] == ["videos", "shorts"]
+    without_shorts = build_channel_urls(channel_url, include_shorts=False)
+    assert [u.rsplit("/", 1)[-1] for u in without_shorts] == ["videos"]
+
+
+@pytest.mark.parametrize(
+    "channel_url",
+    [
+        "https://www.youtube.com/c/videos",
+        "https://www.youtube.com/c/Shorts",
+        "https://www.youtube.com/user/Shorts",
+        "https://www.youtube.com/user/playlists",
+    ],
+)
+def test_channel_named_exactly_like_a_tab_still_gets_videos_tab(channel_url):
+    """頻道名稱本身就是 videos／shorts／playlists 時，名稱不是分頁，仍要補上 /videos。"""
+    from yt_fetch import build_channel_urls
+
+    assert build_channel_urls(channel_url, include_shorts=False) == [f"{channel_url}/videos"]
+
+
+def test_share_link_query_does_not_leak_tab_into_query_string():
+    """手機分享連結帶 `?si=`；分頁不得被接到 query 後面變成畸形網址。"""
+    from yt_fetch import build_channel_urls
+
+    assert build_channel_urls("https://www.youtube.com/@x?si=abc", include_shorts=True) == [
+        "https://www.youtube.com/@x/videos",
+        "https://www.youtube.com/@x/shorts",
+    ]
+    assert build_channel_urls("https://www.youtube.com/@x/?si=abc#top", False) == [
+        "https://www.youtube.com/@x/videos"
+    ]
+
+
+@pytest.mark.parametrize("tab", ["featured", "live", "community", "about"])
+def test_non_video_tab_is_replaced_not_nested(tab):
+    """首頁／直播／社群等非影片清單分頁要換成 /videos，不可串成 `/featured/videos`。"""
+    from yt_fetch import build_channel_urls
+
+    assert build_channel_urls(f"https://www.youtube.com/@x/{tab}", include_shorts=True) == [
+        "https://www.youtube.com/@x/videos",
+        "https://www.youtube.com/@x/shorts",
+    ]
+
+
+def test_streams_tab_is_kept_as_explicit_choice():
+    """/streams 是使用者明確指定的影片清單分頁，原樣使用，不可串成 `/streams/videos`。"""
+    from yt_fetch import build_channel_urls
+
+    url = "https://www.youtube.com/channel/UC" + "a" * 22 + "/streams"
+    assert build_channel_urls(url, include_shorts=True) == [url]
+
+
+def test_playlist_url_keeps_its_list_query():
+    """playlist 的 `?list=` 是必要參數，不能被去 query 的處理剝掉。"""
+    from yt_fetch import build_channel_urls
+
+    url = "https://www.youtube.com/playlist?list=PL123&si=abc"
+    assert build_channel_urls(url, include_shorts=True) == [url]
+
+
+@pytest.mark.parametrize(
+    "bom, codec",
+    [(b"\xff\xfe", "utf-16-le"), (b"\xfe\xff", "utf-16-be")],
+)
+def test_read_channels_file_accepts_powershell51_utf16(tmp_path, bom, codec):
+    """Windows PowerShell 5.1 的 `>`／Out-File 預設寫 UTF-16LE＋BOM，不得 UnicodeDecodeError。"""
+    from yt_fetch import read_channels_file
+
+    f = tmp_path / "channels.txt"
+    f.write_bytes(bom + "# 註解\r\n@first\r\n@second\r\n".encode(codec))
+
+    assert read_channels_file(str(f)) == ["@first", "@second"]
+
+
+def test_undecodable_channels_file_exits_with_message_not_traceback(monkeypatch, tmp_path, caplog):
+    """無法解碼的清單檔（例如 Big5 無 BOM）要給可讀錯誤並結束碼 1，不可丟未處理例外。"""
+    import yt_fetch
+
+    f = tmp_path / "channels.txt"
+    f.write_bytes("@頻道\n".encode("cp950"))
+    monkeypatch.setattr(sys, "argv", ["yt_fetch.py", "--channels-file", str(f)])
+    monkeypatch.setattr(yt_fetch, "ensure_venv_and_restart", lambda: False)
+    monkeypatch.setattr(yt_fetch, "write_default_config_if_missing", lambda: None)
+    monkeypatch.setattr(yt_fetch, "load_config", lambda: {})
+    monkeypatch.setattr(yt_fetch, "maybe_use_managed_cookies", lambda a: None)
+
+    with pytest.raises(SystemExit) as exc:
+        yt_fetch.main()
+
+    assert exc.value.code == 1
+    assert "UTF-8" in caplog.text
+
+
+def test_batch_safe_exit_is_not_counted_as_failure(monkeypatch):
+    """單頻道安全退出（exit 0）在批次中不得記成失敗，否則全批結束碼與單頻道模式不一致。"""
+    import yt_fetch
+
+    def fake_download(channel_url, *a, **k):
+        if "safe" in channel_url:
+            raise SystemExit(0)
+        raise SystemExit(1)
+
+    monkeypatch.setattr(yt_fetch, "download_videos", fake_download)
+    monkeypatch.setattr(yt_fetch, "normalize_channel_url", lambda c: c)
+    args = types.SimpleNamespace(
+        count=5,
+        include_shorts=False,
+        quality="best",
+        retries=3,
+        cookies_from_browser="",
+        cookies="",
+        ratelimit=0,
+        sleep=0,
+    )
+
+    all_safe = yt_fetch.run_batch_download(["safe-a", "safe-b"], args)
+    assert [r["status"] for r in all_safe] == ["skipped", "skipped"]
+    assert yt_fetch.batch_exit_code(all_safe) == 0
+
+    real_fail = yt_fetch.run_batch_download(["fail-a", "fail-b"], args)
+    assert yt_fetch.batch_exit_code(real_fail) == 1
+
+
+def test_update_check_points_at_current_repository_name():
+    """改名後 GITHUB_REPO 必須與 pyproject 的 Repository URL 一致，不能依賴 GitHub 改名轉址。"""
+    import re
+    from pathlib import Path
+
+    import yt_fetch
+
+    pyproject = (Path(__file__).resolve().parent.parent / "pyproject.toml").read_text(
+        encoding="utf-8"
+    )
+    match = re.search(r'^Repository\s*=\s*"https://github\.com/([^"]+?)/?"', pyproject, re.M)
+    assert match, "pyproject.toml 缺少 [project.urls] Repository"
+    assert yt_fetch.GITHUB_REPO == match.group(1)

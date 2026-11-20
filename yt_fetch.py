@@ -21,6 +21,7 @@ YouTube 頻道影片下載工具
 """
 
 import argparse
+import codecs
 import configparser
 import logging
 import os
@@ -63,7 +64,7 @@ ARCHIVE_FILE = DOWNLOAD_DIR / ".download_archive.txt"
 # 版本與專案資訊（供 GUI「關於」與「檢查更新」使用）。
 # 註：版本號以此為準，發布時與 pyproject.toml 同步（見 docs/RELEASING.md）。
 __version__ = "1.9.3"
-GITHUB_REPO = "SanHsien/yt_fetch"
+GITHUB_REPO = "SanHsien/channeldepot"
 RELEASES_URL = f"https://github.com/{GITHUB_REPO}/releases"
 QUALITY_CHOICES = ("best", "1080p", "720p", "480p")
 QUALITY_HEIGHTS = {
@@ -688,17 +689,19 @@ def normalize_channel_url(channel: str) -> str:
             raise ValueError("只接受 HTTPS 的 YouTube 網址")
         return channel
 
+    # 只組出頻道根網址；要抓哪些分頁（/videos、/shorts）由 build_channel_urls 決定，
+    # 這裡先補 /videos 會讓 --include-shorts 永遠失效。
     # 如果是 @handle 格式
     if channel.startswith("@"):
-        return f"https://www.youtube.com/{channel}/videos"
+        return f"https://www.youtube.com/{channel}"
 
     # 如果是頻道 ID (UC...)
     if channel.startswith("UC") and len(channel) == 24:
-        return f"https://www.youtube.com/channel/{channel}/videos"
+        return f"https://www.youtube.com/channel/{channel}"
 
     # 嘗試作為 handle
     if not channel.startswith("/"):
-        return f"https://www.youtube.com/@{channel}/videos"
+        return f"https://www.youtube.com/@{channel}"
 
     return f"https://www.youtube.com{channel}"
 
@@ -860,16 +863,35 @@ def build_channel_urls(channel_url: str, include_shorts: bool) -> List[str]:
     """根據頻道 URL 與是否包含 Shorts，組出要提取的頁面 URL 清單。
 
     YouTube 自 2022 起把頻道分為 Videos / Shorts / Live 分頁；`/videos` 只含長片、
-    `/shorts` 只含 Shorts。若輸入已是 playlist 或已指定特定分頁，則原樣使用。
+    `/shorts` 只含 Shorts。若輸入是 playlist／單支影片，或已指定影片清單分頁
+    （videos、shorts、streams、playlists），則原樣使用。
+
+    分頁只看頻道識別段「之後」的那一段（`@handle`、`channel/<id>`、`c/<name>`、
+    `user/<name>`、舊式 `/<name>`），所以頻道名稱本身叫 videos／shorts 不會被誤認成分頁。
+    首頁、直播、社群等非影片清單分頁會換成 `/videos`，分享連結的 query（如 `?si=`）與
+    fragment 會被捨棄，避免分頁被接進 query 變成畸形網址。
     """
-    path_segments = [seg.lower() for seg in urlparse(channel_url).path.split("/") if seg]
-    if {"playlist", "playlists", "videos", "shorts"} & set(path_segments):
+    parsed = urlparse(channel_url)
+    segments = [seg for seg in parsed.path.split("/") if seg]
+    if not segments or segments[0].lower() in _PASSTHROUGH_ROOT_SEGMENTS:
         return [channel_url]
 
-    base_url = channel_url.rstrip("/")
+    id_len = 2 if segments[0].lower() in _CHANNEL_PREFIX_SEGMENTS else 1
+    if len(segments) > id_len and segments[id_len].lower() in _VIDEO_LIST_TABS:
+        return [channel_url]
+
+    base_url = f"{parsed.scheme}://{parsed.netloc}/{'/'.join(segments[:id_len])}"
     if include_shorts:
         return [f"{base_url}/videos", f"{base_url}/shorts"]
     return [f"{base_url}/videos"]
+
+
+# build_channel_urls 用：路徑第一段是這些時，整個網址就是要抓的目標（query 必要，例如 ?list=）
+_PASSTHROUGH_ROOT_SEGMENTS = frozenset({"playlist", "watch"})
+# 頻道識別佔兩段的前綴（`channel/<id>`、`c/<name>`、`user/<name>`）
+_CHANNEL_PREFIX_SEGMENTS = frozenset({"channel", "c", "user"})
+# 使用者明確指定、本身就是影片清單的分頁
+_VIDEO_LIST_TABS = frozenset({"videos", "shorts", "streams", "playlists"})
 
 
 def build_format_selector(quality: str) -> str:
@@ -1466,8 +1488,19 @@ def read_channels_file(path: str) -> List[str]:
     file_path = Path(path)
     if not file_path.exists():
         raise FileNotFoundError(f"找不到頻道清單檔：{path}")
+    raw = file_path.read_bytes()
+    try:
+        # Windows PowerShell 5.1 的 `>`／Out-File 預設寫 UTF-16LE＋BOM；記事本可能寫 UTF-8 BOM
+        if raw.startswith((codecs.BOM_UTF16_LE, codecs.BOM_UTF16_BE)):
+            text = raw.decode("utf-16")
+        else:
+            text = raw.decode("utf-8-sig")
+    except UnicodeDecodeError as exc:
+        raise ValueError(
+            f"頻道清單檔無法解碼，請另存為 UTF-8（或含 BOM 的 UTF-16）：{path}"
+        ) from exc
     channels = []
-    for line in file_path.read_text(encoding="utf-8-sig").splitlines():
+    for line in text.splitlines():
         line = line.strip()
         if line and not line.startswith("#"):
             channels.append(line)
@@ -2041,12 +2074,15 @@ def run_batch_download(
                 }
             )
         except SystemExit as e:
-            # download_videos 在致命錯誤時會 sys.exit；批次中視為該頻道失敗，繼續下一個
+            # download_videos 在致命錯誤時會 sys.exit；批次中視為該頻道失敗，繼續下一個。
+            # code 0／None 是安全退出（例如偵測到無權存取的內容），單頻道模式結束碼為 0，
+            # 批次記為 skipped 而不是 fail，兩種模式的結束碼語義才一致。
+            safe_exit = e.code in (0, None)
             logger.warning(f"頻道提前結束（code={e.code}），繼續下一個：{channel}")
             results.append(
                 {
                     "channel": channel,
-                    "status": "fail",
+                    "status": "skipped" if safe_exit else "fail",
                     "downloaded": 0,
                     "downloaded_items": [],
                     "error": f"code={e.code}",
@@ -2068,15 +2104,22 @@ def run_batch_download(
     total_downloaded = sum(r["downloaded"] for r in results)
     ok = [r for r in results if r["status"] == "ok"]
     failed = [r for r in results if r["status"] == "fail"]
+    skipped = [r for r in results if r["status"] == "skipped"]
 
     logger.info("=" * 60)
     logger.info("批次下載完成")
     logger.info("=" * 60)
-    logger.info(f"頻道：{len(results)} 個（成功 {len(ok)}、失敗 {len(failed)}）")
+    logger.info(
+        f"頻道：{len(results)} 個（成功 {len(ok)}、失敗 {len(failed)}、安全略過 {len(skipped)}）"
+    )
     logger.info(f"本次共下載 {total_downloaded} 支影片")
     for r in results:
-        mark = "✓" if r["status"] == "ok" else "✗"
-        detail = f"{r['downloaded']} 支" if r["status"] == "ok" else f"失敗（{r['error']}）"
+        if r["status"] == "ok":
+            mark, detail = "✓", f"{r['downloaded']} 支"
+        elif r["status"] == "skipped":
+            mark, detail = "–", f"安全略過（{r['error']}）"
+        else:
+            mark, detail = "✗", f"失敗（{r['error']}）"
         logger.info(f"  {mark} {r['channel']}：{detail}")
     if failed:
         logger.info(f"失敗頻道：{', '.join(r['channel'] for r in failed)}")
@@ -2086,7 +2129,10 @@ def run_batch_download(
 
 
 def batch_exit_code(results: List[Dict]) -> int:
-    """批次結束碼：全部頻道失敗回 1；部分失敗或全部成功回 0（失敗頻道列在摘要）。"""
+    """批次結束碼：全部頻道失敗回 1；部分失敗或全部成功回 0（失敗頻道列在摘要）。
+
+    安全略過（skipped）不算失敗，與單頻道模式安全退出回 0 一致。
+    """
     if results and all(r["status"] == "fail" for r in results):
         return 1
     return 0
@@ -2231,7 +2277,11 @@ def main():  # noqa: C901
 
     # 批次模式：逐一處理頻道清單，單一失敗不中斷整批
     if args.channels_file:
-        channels = read_channels_file(args.channels_file)
+        try:
+            channels = read_channels_file(args.channels_file)
+        except (OSError, ValueError) as e:
+            logger.error(str(e))
+            sys.exit(1)
         if not channels:
             logger.error(f"頻道清單檔沒有有效頻道：{args.channels_file}")
             sys.exit(1)
