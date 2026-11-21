@@ -13,11 +13,11 @@ updates:
     labels:
       - "dependencies"
       - "python"
-    # 延後中的依賴不讓 Dependabot 調高下限（#33 曾把 imageio-ffmpeg 推到 0.8.1，已還原）。
+    # 延後中的依賴不讓 Dependabot 調高下限（#33 曾把 imageio-ffmpeg 推到 0.8.1、#34 推到 0.8.0，皆不採用）。
     # 解除延後時，先刪 .github/dependency-deferrals.json 的對應項，再刪這裡。
     ignore:
       - dependency-name: "imageio-ffmpeg"
-        versions: [">=0.8.1"]
+        versions: [">=0.8.0"]
     groups:
       runtime-dependencies:
         dependency-type: "production"
